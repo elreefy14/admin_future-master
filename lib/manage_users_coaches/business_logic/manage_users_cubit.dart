@@ -759,9 +759,9 @@ bool isConnected = await checkInternetConnection();
    latestUserId = userId;
     bool isConnected = await checkInternetConnectivity();
     //get time stamp for the current month and year
-    String monthAndYear = DateTime.now().month.toString() +
-        '-' +
-        DateTime.now().year.toString();
+    //String monthAndYear = DateTime.now().month.toString() +
+    //    '-' +
+    //    DateTime.now().year.toString();
     if (isConnected) {
       //go to branches collection and doc with branchId then collection date then doc with month and year then update field number of sessions
       //         FirebaseFirestore.instance
@@ -771,7 +771,32 @@ bool isConnected = await checkInternetConnection();
       //       .doc(monthAndYear)
       //       .update({'numberOfSessions':
       //       FieldValue.increment(int.parse(sessions))});
-
+      FirebaseFirestore.instance
+          .collection('admins')
+          .doc( FirebaseAuth.instance.currentUser?.uid)
+          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+        if (value.exists) {
+//add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .update({
+            'numberOfSessions': FieldValue.increment(int.parse(sessions))
+          });
+        } else {
+          //create new document and add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .set({
+            'numberOfSessions':int.parse(sessions)
+          });
+        }
+      });
       FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -825,7 +850,33 @@ bool isConnected = await checkInternetConnection();
           .collection('users')
           .doc(userId)
           .update({'numberOfSessions': FieldValue.increment(int.parse(sessions))});
-  //add users to user collection wih random
+      FirebaseFirestore.instance
+          .collection('admins')
+          .doc( FirebaseAuth.instance.currentUser?.uid)
+          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+        if (value.exists) {
+//add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .update({
+            'numberOfSessions': FieldValue.increment(int.parse(sessions))
+          });
+        } else {
+          //create new document and add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .set({
+            'numberOfSessions':int.parse(sessions)
+          });
+        }
+      });
+       //add users to user collection wih random
       //    required String lName,
       //     required String fName,
       //     required String phone,
@@ -887,22 +938,42 @@ bool isConnected = await checkInternetConnection();
     bool isConnected = await checkInternetConnectivity();
     if (isConnected) {
       FirebaseFirestore.instance
+          .collection('admins')
+          .doc( FirebaseAuth.instance.currentUser?.uid)
+          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+        if (value.exists) {
+//add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .update({
+            'numberOfAttendence': FieldValue.increment(int.parse(sessions))
+          });
+        } else {
+          //create new document and add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .set({
+            'numberOfAttendence':int.parse(sessions)
+          });
+        }
+      });
+       FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
-          .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))})
-          .then((value) {
+          .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
+
         print('Sessions reduced');
-        //show toast message
-       // showToast(
-       //   state: ToastStates.SUCCESS,
-      //    msg: 'تم تخفيض عدد الجلسات',
-      //  );
-        //show rollback button for 5 seconds
         showRollbackButton = true;
         //5 seconds
         Future.delayed(Duration(seconds: 5), () {
           showRollbackButton = false;
-         // emit(ReduceSessionsSuccessState());
+           emit(ReduceSessionsSuccessState());
         });
         print('showRollbackButton: $showRollbackButton');
         NotificationModel notification = NotificationModel(
@@ -916,17 +987,11 @@ bool isConnected = await checkInternetConnection();
             .add(notification.toMap());
         salaryController.clear();
         emit(ReduceSessionsSuccessState());
-     //   Navigator.pop(context);
-      }).catchError((error) {
-        print('Failed to reduce sessions: $error');
-        showToast(msg: 'فشل تخفيض عدد الجلسات', state: ToastStates.ERROR);
-        emit(ReduceSessionsErrorState(error.toString()));
-      });
+        return;
+        //   Navigator.pop(context);
+
     } else {
-      //i use firebase persistance so update data and show toast message
-      //to tell user that data will be updated when internet is available
-      //and emit state
-      //then pop
+
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(userId)
@@ -938,8 +1003,61 @@ bool isConnected = await checkInternetConnection();
           .collection('users')
           .doc(userId)
           .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
+      FirebaseFirestore.instance
+          .collection('admins')
+          .doc( FirebaseAuth.instance.currentUser?.uid)
+          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+        if (value.exists) {
+//add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .update({
+            'numberOfAttendence': FieldValue.increment(int.parse(sessions))
+          });
+        } else {
+          //create new document and add number of sessions to it
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates')
+              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+              .set({
+            'numberOfAttendence':int.parse(sessions)
+          });
+        }
+      });
 
-        print('Sessions reduced');
+       //       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc( FirebaseAuth.instance.currentUser?.uid)
+//           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//         if (value.exists) {
+// //add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .update({
+//             'numberOfSessions': FieldValue.increment(-int.parse(sessions))
+//           });
+//         } else {
+//           //create new document and add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .set({
+//             'numberOfSessions':-int.parse(sessions)
+//           });
+//         }
+//       });
+
+      print('Sessions reduced');
         //show toast message
       //  showToast(
       //    state: ToastStates.SUCCESS,
@@ -962,12 +1080,11 @@ bool isConnected = await checkInternetConnection();
         Future.delayed(Duration(seconds: 5), () {
           showRollbackButton = false;
           print('\n\n\nshowRollbackButton: $showRollbackButton');
-
-          //emit(ReduceSessionsSuccessState());
+          emit(ReduceSessionsSuccessState());
         });
         emit(ReduceSessionsSuccessState());
        // Navigator.pop(context);
-
+        return;
     }
 
   }
@@ -985,40 +1102,17 @@ bool isConnected = await checkInternetConnection();
   Future<void> paySalary({
     String? userId,
     String? userName,
-
-
+    int? userTotalSalary,
   }) async {
     try {
+      //print total salary of all users
+      print('Total salary user: $userTotalSalary');
       latestUserId = userId;
-
       print('userId: $userId');
       emit(PaySalaryLoadingState());
-
       bool isConnected = await checkInternetConnectivity();
 
       if (!isConnected) {
-        // DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-        //           .collection('users')
-        //           .doc(userId)
-        //           .get(GetOptions(source: Source.serverAndCache));
-        //       Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
-        //       UserModel user = UserModel.fromJson(userData!);
-        //       user.numberOfSessions = user.numberOfSessions! - int.parse(sessions);
-        //        FirebaseFirestore.instance
-        //           .collection('users')
-        //           .doc(userId)
-        //           .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
-        //
-        //         print('Sessions reduced');
-        //         //show toast message
-        //         showToast(
-        //           state: ToastStates.SUCCESS,
-        //           msg: 'تم تخفيض عدد الجلسات '
-        //               'سيتم تحديث البيانات عند توفر الإنترنت',
-        //         );
-        //         salaryController.clear();
-        //         emit(ReduceSessionsSuccessState());
-        //        // Navigator.pop(context);
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
@@ -1029,6 +1123,36 @@ bool isConnected = await checkInternetConnection();
         userSnapshot.data() as Map<String, dynamic>?;
         UserModel user = UserModel.fromJson(userData!);
         user.totalSalary = 0;
+        FirebaseFirestore.instance
+            .collection('admins')
+            .doc( FirebaseAuth.instance.currentUser?.uid)
+            .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+          if (value.exists) {
+//add number of sessions to it
+            FirebaseFirestore.instance
+                .collection('admins')
+                .doc( FirebaseAuth.instance.currentUser?.uid)
+                .collection('dates')
+                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                .update({
+              //totalSalary
+              'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
+              // 'totalHours': FieldValue.increment(-totalHours),
+            });
+          } else {
+            //create new document and add number of sessions to it
+            FirebaseFirestore.instance
+                .collection('admins')
+                .doc( FirebaseAuth.instance.currentUser?.uid)
+                .collection('dates')
+                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                .set({
+              //totalSalary
+              'totalSalary': int.parse(userTotalSalary.toString()),
+              //  'totalHours': 0,
+            });
+          }
+        });
        FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
@@ -1046,7 +1170,7 @@ bool isConnected = await checkInternetConnection();
           emit(ShowRollbackButtonState());
         });
         NotificationModel notification = NotificationModel(
-          message: 'تم صرف المرتب كامل للمستخدم ${user.name} بمبلغ ${user.totalSalary} جنيه',
+          message: 'تم صرف المرتب كامل للمستخدم ${user.name} ',
           timestamp: DateTime.now(),
         );
         FirebaseFirestore.instance
@@ -1075,6 +1199,36 @@ bool isConnected = await checkInternetConnection();
         if (currentTotalSalary != newTotalSalary) {
           // Save the current total salary locally before updating it
           saveSalaryLocally(userId, currentTotalSalary!);
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+            if (value.exists) {
+//add number of sessions to it
+              FirebaseFirestore.instance
+                  .collection('admins')
+                  .doc( FirebaseAuth.instance.currentUser?.uid)
+                  .collection('dates')
+                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                  .update({
+                //totalSalary
+                'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
+                // 'totalHours': FieldValue.increment(-totalHours),
+              });
+            } else {
+              //create new document and add number of sessions to it
+              FirebaseFirestore.instance
+                  .collection('admins')
+                  .doc( FirebaseAuth.instance.currentUser?.uid)
+                  .collection('dates')
+                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                  .set({
+                //totalSalary
+                'totalSalary': int.parse(userTotalSalary.toString()),
+                //  'totalHours': 0,
+              });
+            }
+          });
 
           await FirebaseFirestore.instance
               .collection('users')
@@ -1278,6 +1432,36 @@ bool isConnected = await checkInternetConnection();
             .collection('users')
             .doc(userId)
             .update({'totalSalary': currentTotalSalary- int.parse(salaryPaid!)});
+        FirebaseFirestore.instance
+            .collection('admins')
+            .doc( FirebaseAuth.instance.currentUser?.uid)
+            .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+          if (value.exists) {
+//add number of sessions to it
+            FirebaseFirestore.instance
+                .collection('admins')
+                .doc( FirebaseAuth.instance.currentUser?.uid)
+                .collection('dates')
+                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                .update({
+              //totalSalary
+              'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
+             // 'totalHours': FieldValue.increment(-totalHours),
+            });
+          } else {
+            //create new document and add number of sessions to it
+            FirebaseFirestore.instance
+                .collection('admins')
+                .doc( FirebaseAuth.instance.currentUser?.uid)
+                .collection('dates')
+                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                .set({
+              //totalSalary
+              'totalSalary': int.parse(salaryPaid!),
+            //  'totalHours': 0,
+            });
+          }
+        });
         print('Total salary of all users: $globalTotalSalary');
         //  showToast(
         //      state: ToastStates.SUCCESS,
@@ -1340,6 +1524,36 @@ bool isConnected = await checkInternetConnection();
           Timer(Duration(seconds: 5), () {
             showRollbackButton = false;
             emit(ShowRollbackButtonState());
+          });
+          FirebaseFirestore.instance
+              .collection('admins')
+              .doc( FirebaseAuth.instance.currentUser?.uid)
+              .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+            if (value.exists) {
+//add number of sessions to it
+              FirebaseFirestore.instance
+                  .collection('admins')
+                  .doc( FirebaseAuth.instance.currentUser?.uid)
+                  .collection('dates')
+                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                  .update({
+                //totalSalary
+                'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
+                // 'totalHours': FieldValue.increment(-totalHours),
+              });
+            } else {
+              //create new document and add number of sessions to it
+              FirebaseFirestore.instance
+                  .collection('admins')
+                  .doc( FirebaseAuth.instance.currentUser?.uid)
+                  .collection('dates')
+                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+                  .set({
+                //totalSalary
+                'totalSalary': int.parse(salaryPaid!),
+                //  'totalHours': 0,
+              });
+            }
           });
           NotificationModel notification = NotificationModel(
             message: 'تم صرف المرتب للمستخدم $userName بمبلغ $salaryPaid جنيه',

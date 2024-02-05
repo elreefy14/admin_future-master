@@ -653,36 +653,36 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                         FieldValue.increment(totalHours),
                                                                         'totalSalary':FieldValue.increment(totalHours*user['hourlyRate'])
                                                                       });
-                                                                      FirebaseFirestore.instance
-                                                                          .collection('admins')
-                                                                          .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-                                                                        if (value.exists) {
-//add number of sessions to it
-                                                                          FirebaseFirestore.instance
-                                                                              .collection('admins')
-                                                                              .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                              .collection('dates')
-                                                                              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                                                                              .update({
-                                                                            //totalSalary
-                                                                            'totalSalary': FieldValue.increment(totalHours*user['hourlyRate']),
-                                                                            'totalHours': FieldValue.increment(totalHours),
-                                                                          });
-                                                                        } else {
-                                                                          //create new document and add number of sessions to it
-                                                                          FirebaseFirestore.instance
-                                                                              .collection('admins')
-                                                                              .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                              .collection('dates')
-                                                                              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                                                                              .set({
-                                                                            //totalSalary
-                                                                            'totalSalary': totalHours*user['hourlyRate'],
-                                                                            'totalHours': totalHours,
-                                                                          });
-                                                                        }
-                                                                      });
+//                                                                       FirebaseFirestore.instance
+//                                                                           .collection('admins')
+//                                                                           .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//                                                                         if (value.exists) {
+// //add number of sessions to it
+//                                                                           FirebaseFirestore.instance
+//                                                                               .collection('admins')
+//                                                                               .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                               .collection('dates')
+//                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                                                                               .update({
+//                                                                             //totalSalary
+//                                                                             'totalSalary': FieldValue.increment(totalHours*user['hourlyRate']),
+//                                                                             'totalHours': FieldValue.increment(totalHours),
+//                                                                           });
+//                                                                         } else {
+//                                                                           //create new document and add number of sessions to it
+//                                                                           FirebaseFirestore.instance
+//                                                                               .collection('admins')
+//                                                                               .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                               .collection('dates')
+//                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                                                                               .set({
+//                                                                             //totalSalary
+//                                                                             'totalSalary': totalHours*user['hourlyRate'],
+//                                                                             'totalHours': totalHours,
+//                                                                           });
+//                                                                         }
+//                                                                       });
 
                                                                       //send notification to users model contain 2 fields message and timestamp
                                                                       // firestore
@@ -724,36 +724,36 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                         FieldValue.increment(-totalHours)
                                                                         ,'totalSalary':FieldValue.increment(-totalHours*user['hourlyRate'])
                                                                       });
-                                                                      FirebaseFirestore.instance
-                                                                          .collection('admins')
-                                                                          .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-                                                                        if (value.exists) {
-//add number of sessions to it
-                                                                          FirebaseFirestore.instance
-                                                                              .collection('admins')
-                                                                              .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                              .collection('dates')
-                                                                              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                                                                              .update({
-                                                                            //totalSalary
-                                                                            'totalSalary': FieldValue.increment(-totalHours*user['hourlyRate']),
-                                                                            'totalHours': FieldValue.increment(-totalHours),
-                                                                          });
-                                                                        } else {
-                                                                          //create new document and add number of sessions to it
-                                                                          FirebaseFirestore.instance
-                                                                              .collection('admins')
-                                                                              .doc( FirebaseAuth.instance.currentUser?.uid)
-                                                                              .collection('dates')
-                                                                              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                                                                              .set({
-                                                                            //totalSalary
-                                                                            'totalSalary': 0,
-                                                                            'totalHours': 0,
-                                                                          });
-                                                                        }
-                                                                      });
+//                                                                       FirebaseFirestore.instance
+//                                                                           .collection('admins')
+//                                                                           .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//                                                                         if (value.exists) {
+// //add number of sessions to it
+//                                                                           FirebaseFirestore.instance
+//                                                                               .collection('admins')
+//                                                                               .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                               .collection('dates')
+//                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                                                                               .update({
+//                                                                             //totalSalary
+//                                                                             'totalSalary': FieldValue.increment(-totalHours*user['hourlyRate']),
+//                                                                             'totalHours': FieldValue.increment(-totalHours),
+//                                                                           });
+//                                                                         } else {
+//                                                                           //create new document and add number of sessions to it
+//                                                                           FirebaseFirestore.instance
+//                                                                               .collection('admins')
+//                                                                               .doc( FirebaseAuth.instance.currentUser?.uid)
+//                                                                               .collection('dates')
+//                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                                                                               .set({
+//                                                                             //totalSalary
+//                                                                             'totalSalary': 0,
+//                                                                             'totalHours': 0,
+//                                                                           });
+//                                                                         }
+//                                                                       });
 
                                                                       //send notification to users model contain 2 fields message and timestamp
                                                                       // firestore
@@ -1074,7 +1074,7 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                                     .collection('dates')
                                                                                     .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
                                                                                     .update({
-                                                                                  'numberOfSessions': FieldValue.increment(-1)
+                                                                                  'numberOfAttendence': FieldValue.increment(1)
                                                                                 });
                                                                               } else {
                                                                                 //create new document and add number of sessions to it
@@ -1084,7 +1084,7 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                                     .collection('dates')
                                                                                     .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
                                                                                     .set({
-                                                                                  'numberOfSessions': 0
+                                                                                  'numberOfAttendence': 1
                                                                                 });
                                                                               }
                                                                             });
@@ -1176,7 +1176,7 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                               .collection('dates')
                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
                                                                               .update({
-                                                                            'numberOfSessions': FieldValue.increment(1)
+                                                                            'numberOfSessions': FieldValue.increment(-1)
                                                                           });
                                                                         } else {
                                                                           //create new document and add number of sessions to it
@@ -1186,7 +1186,7 @@ class ManageSchedulesScreen extends StatelessWidget {
                                                                               .collection('dates')
                                                                               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
                                                                               .set({
-                                                                            'numberOfSessions': 1
+                                                                            'numberOfSessions': 0
                                                                           });
                                                                         }
                                                                       });

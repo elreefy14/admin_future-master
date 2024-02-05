@@ -278,8 +278,7 @@ class ShowCoachesInDialog extends StatelessWidget {
                   pageSize: 5,
                   query: query ??FirebaseFirestore.instance.collection('users').where(
                       'role', isEqualTo: isCoachInfoList??false ? 'coach' : 'user')
-                  //  .where('pid',isEqualTo: FirebaseAuth.instance.currentUser!.uid),
-                  ,
+                    .where('pid',isEqualTo: FirebaseAuth.instance.currentUser!.uid),
                   itemBuilder: (context, document) {
                     final data = document.data() as Map<String, dynamic>;
                     final user = UserModel.fromJson(data);
@@ -532,7 +531,9 @@ class ShowCoachesInDialog extends StatelessWidget {
                                                         onTap: () async {
                                                           print('uiiiiiiiiid \n\n');
                                                           //     print(ManageUsersCubit.get(context).users[index].uId);
-                                                          await ManageUsersCubit.get(context).paySalary(userName:
+                                                          await ManageUsersCubit.get(context).paySalary(
+                                                                                                                         userTotalSalary:user.totalSalary,
+                                                            userName:
                                                           user.name,
                                                             userId:
                                                             uid,
@@ -1454,7 +1455,11 @@ class ShowCoachesInDialog extends StatelessWidget {
                                                         onTap: () async {
                                                           print('uiiiiiiiiid \n\n');
                                                           //     print(ManageUsersCubit.get(context).users[index].uId);
-                                                          await ManageUsersCubit.get(context).paySalary(userName:
+                                                          await ManageUsersCubit.get(context).paySalary(
+                                                             userTotalSalary:user.totalSalary,
+
+
+                                                            userName:
                                                           user.name,
                                                             userId:
                                                             uid,
@@ -2081,7 +2086,9 @@ class ShowCoachesInDialog extends StatelessWidget {
                                                         onTap: () async {
                                                           print('uiiiiiiiiid \n\n');
                                                           //     print(ManageUsersCubit.get(context).users[index].uId);
-                                                          await ManageUsersCubit.get(context).paySalary(userName:
+                                                          await ManageUsersCubit.get(context).paySalary(
+                                                                                                                         userTotalSalary:user.totalSalary,
+                                                            userName:
                                                           user.name,
                                                             userId:
                                                             uid,
@@ -3011,7 +3018,9 @@ class ShowCoachesInDialog extends StatelessWidget {
                                                           onTap: () async {
                                                             print('uiiiiiiiiid \n\n');
                                                             //     print(ManageUsersCubit.get(context).users[index].uId);
-                                                            await ManageUsersCubit.get(context).paySalary(userName:
+                                                            await ManageUsersCubit.get(context).paySalary(
+                                                             userTotalSalary:user.totalSalary,
+                                                              userName:
                                                             user.name,
                                                               userId:
                                                               uid,
