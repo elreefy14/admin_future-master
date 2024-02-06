@@ -127,6 +127,7 @@ class AddCoachScreen extends StatelessWidget {
                           }, Icons.phone,),
                       ),
                       SizedBox(height: 20.0.h),
+                      if(isCoach ==true)
                       Padding(
                         padding: EdgeInsets.symmetric(horizontal: 35.0.w),
                         child: BuildTextFormField2('كلمة المرور',

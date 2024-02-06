@@ -1,6 +1,5 @@
 
 import 'package:admin_future/add_grouup_of_schedules/presentation/onboarding_screen.dart';
-import 'package:admin_future/home/presenation/widget/home_layout.dart';
 import 'package:admin_future/home/business_logic/Home/manage_attendence_cubit%20.dart';
 import 'package:admin_future/manage_users_coaches/business_logic/manage_users_cubit.dart';
 import 'package:admin_future/registeration/business_logic/auth_cubit/sign_up_cubit.dart';
@@ -10,13 +9,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/bloc_observer.dart';
 import 'core/constants/routes_manager.dart';
-import 'package:animated_splash_screen/animated_splash_screen.dart';
 
 //todo if notificaiton is not working
 // Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -59,9 +58,13 @@ Future<void> main() async {
   if (FirebaseAuth.instance.currentUser == null) {
     mainRoute = AppRoutes.login;
   } else {
-    print('user is not null');
+    if (kDebugMode) {
+      print('user is not null');
+    }
     //uid
-    print(FirebaseAuth.instance.currentUser!.uid);
+    if (kDebugMode) {
+      print(FirebaseAuth.instance.currentUser!.uid);
+    }
     mainRoute = AppRoutes.home;
   }
   //await DioHelper.init();
@@ -104,10 +107,9 @@ class MyApp extends StatelessWidget {
         ),
         //  lazy: false,
         ),
-        BlocProvider(create: (context) => SignUpCubit()
-        // ..addBranches()
-          ..getBranches()
-        ),
+     //   BlocProvider(create: (context) => SignUpCubit()
+     //     ..getBranches()
+     //   ),
         BlocProvider(create: (context) => ManageUsersCubit()
         //    ,lazy: false
         ),

@@ -34,6 +34,7 @@ Widget BuildTextFormField2(
       ),
       const SizedBox(height: 8),
       TextFormField(
+textDirection: TextDirection.ltr,
         textAlign: TextAlign.right,
         controller: controller,
         keyboardType: input,
@@ -190,9 +191,8 @@ Widget BuildTextFormField(
       const SizedBox(height: 8),
       TextFormField(
         //rtl
+        textDirection: TextDirection.ltr,
         textAlign: TextAlign.right,
-       //text direction
-        textDirection: TextDirection.rtl,
         //  scrollPadding: //50 from bottom of screen
         //   EdgeInsets.only(bottom: 50.h),
         controller: controller,

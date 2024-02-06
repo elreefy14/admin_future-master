@@ -1,14 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:http/http.dart' as http;
-import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../registeration/data/userModel.dart';
 import '../../registeration/presenation/widget/widget.dart';
@@ -206,8 +203,6 @@ class ManageUsersCubit extends Cubit<ManageUsersState> {
   //get list of schedules from admin collection then schedule subcollection for specific day like friday
   List<ScheduleModel> schedules = [];
   Future<void> getSchedules({required String day}) async {
-    print('a7a \n\n\n\n');
-    print('day: $day');
     emit(GetSchedulesLoadingState());
     schedules = [];
     await FirebaseFirestore.instance
@@ -226,18 +221,11 @@ class ManageUsersCubit extends Cubit<ManageUsersState> {
       //print all info for each schedule
       if (kDebugMode) {
         schedules.forEach((element) {
-          print('branchId: ${element.branchId}');
-          print('startTime: ${element.startTime}');
-          print('endTime: ${element.endTime}');
           //print end time like that 12 : 00
-          print(
-              'endTime: ${element.endTime?.toDate().hour} : ${element.endTime?.toDate().minute}');
-          print('usersList: ${element.usersList}');
         });
       }
       emit(GetSchedulesSuccessState());
     }).catchError((error) {
-      print(error.toString());
       emit(GetSchedulesErrorState(error.toString()));
     });
   }
@@ -442,23 +430,16 @@ bool isConnected = await checkInternetConnection();
 //   emit(UpdateUserInfoErrorState('تأكد من اتصالك بالإنترنت'));
 // }
     final updateData = <String, Object?>{};
-    print('hourlyRate: $hourlyRate');
-    print('fname: $fname');
-    print('lname: $lname');
-    print('phone: $phone');
-    print('numberOfSessions: $numberOfSessions');
 
 
     final notificationData = <String, dynamic>{};
     if (hourlyRate != null && hourlyRate != '' && hourlyRate != 'null') {
-      print('hourlyRate: a7a $hourlyRate');
       updateData['hourlyRate'] = int.parse(hourlyRate);
       notificationData['message'] = 'تم تحديث معلومات الحساب الشخصية';
     }
     if (numberOfSessions != null &&
         numberOfSessions != '' &&
         numberOfSessions != 'null') {
-      print('numberOfSessions: a7a $numberOfSessions');
       updateData['numberOfSessions'] = int.parse(numberOfSessions);
       notificationData['message'] = 'تم تحديث معلومات الحساب الشخصية';
     }
@@ -483,12 +464,10 @@ bool isConnected = await checkInternetConnection();
       notificationData['message'] = 'تم تحديث معلومات الحساب الشخصية';
     }
     if (phone != null && phone != '' && phone != 'null') {
-      print('phone: a7a $phone');
       updateData['phone'] = phone.toString();
       notificationData['message'] = 'تم تحديث معلومات الحساب الشخصية';
     }
     //print updateData
-    print('updateData: $updateData');
 
     notificationData['timestamp'] = DateTime.now();
     // await FirebaseFirestore.instance
@@ -531,7 +510,6 @@ bool isConnected = await checkInternetConnection();
           await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
       if (!userSnapshot.exists) {
-        print('User not found');
         return;
       }
 
@@ -541,9 +519,7 @@ bool isConnected = await checkInternetConnection();
       // Update password
       await FirebaseAuth.instance.currentUser!.updatePassword(password);
 
-      print('Successfully changed password');
     } catch (error) {
-      print('Password change failed: $error');
     }
   }
 
@@ -560,14 +536,12 @@ bool isConnected = await checkInternetConnection();
         .collection('notifications')
         .add(notification.toMap())
         .then((value) {
-      print('Notification added');
       //show toast message
       showToast(
         state: ToastStates.SUCCESS,
         msg: 'تم إرسال الرسالة',
       );
     }).catchError((error) {
-      print('Failed to add notification: $error');
       showToast(msg: 'فشل إرسال الرسالة', state: ToastStates.ERROR);
     });
   }
@@ -589,7 +563,6 @@ bool isConnected = await checkInternetConnection();
       });
       emit(GetSchedulesForDaySuccessState());
     }).catchError((error) {
-      print(error.toString());
       emit(GetSchedulesForDayErrorState(error.toString()));
     });
   }
@@ -637,7 +610,6 @@ bool isConnected = await checkInternetConnection();
             .collection('schedules')
             .doc(scheduleId)
             .delete();
-        print('Schedule deleted from user $userId');
       }
     }
      // Delete the schedule from each coach's collection
@@ -649,12 +621,10 @@ bool isConnected = await checkInternetConnection();
             .collection('schedules')
             .doc(scheduleId)
             .delete();
-        print('Schedule deleted from coach $coachId');
       }
     }
     emit(DeleteScheduleSuccessState());
   } catch (error) {
-    print(error.toString());
     emit(DeleteScheduleErrorState(error.toString()));
   }
 }
@@ -702,7 +672,6 @@ bool isConnected = await checkInternetConnection();
         .doc(uid)
         .delete()
         .then((value) {
-      print('User deleted');
 
       // Delete the user's subcollection "schedules"
       CollectionReference schedulesCollection =
@@ -720,7 +689,6 @@ bool isConnected = await checkInternetConnection();
           );
           emit(DeleteUserSuccessState());
         }).catchError((error) {
-          print('Failed to delete user schedules: $error');
           showToast(
             msg: 'فشل حذف الجداول الفرعية',
             state: ToastStates.ERROR,
@@ -729,7 +697,6 @@ bool isConnected = await checkInternetConnection();
         });
       });
     }).catchError((error) {
-      print('Failed to delete user: $error');
       showToast(
         msg: 'فشل حذف المستخدم',
         state: ToastStates.ERROR,
@@ -749,288 +716,122 @@ bool isConnected = await checkInternetConnection();
   int? currentTotalSalary ;
   int? currentNumberOfSessions ;
   String? latestUserId;
-  addSessions(context, {String? userId,
-    String? userName,
-    required String sessions,
-   required int NumberOfSessions
-  }) async {
-    emit(AddSessionsLoadingState());
-   currentNumberOfSessions = NumberOfSessions;
-   latestUserId = userId;
-    bool isConnected = await checkInternetConnectivity();
-    //get time stamp for the current month and year
-    //String monthAndYear = DateTime.now().month.toString() +
-    //    '-' +
-    //    DateTime.now().year.toString();
-    if (isConnected) {
-      //go to branches collection and doc with branchId then collection date then doc with month and year then update field number of sessions
-      //         FirebaseFirestore.instance
-      //       .collection('branches')
-      //       .doc(branchId)
-      //       .collection('dates')
-      //       .doc(monthAndYear)
-      //       .update({'numberOfSessions':
-      //       FieldValue.increment(int.parse(sessions))});
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc( FirebaseAuth.instance.currentUser?.uid)
-          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-        if (value.exists) {
-//add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .update({
-            'numberOfSessions': FieldValue.increment(int.parse(sessions))
-          });
-        } else {
-          //create new document and add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .set({
-            'numberOfSessions':int.parse(sessions)
-          });
-        }
-      });
-      FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({'numberOfSessions': FieldValue.increment(int.parse(sessions))})
-          .then((value) {
-        print('Sessions added');
-        //show toast message
-        //add notification to admin
-        NotificationModel notification = NotificationModel(
-          //message indicate that admin add sessions to user name  with number of sessions
-          message: 'تم زيادة عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
-          timestamp: DateTime.now(),
-        );
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('notifications')
-            .add(notification.toMap());
 
-        salaryController.clear();
-        emit(AddSessionsSuccessState());
-   //     Navigator.pop(context);
-     //   showToast(
-     //     state: ToastStates.SUCCESS,
-     //     msg: 'تم زيادة عدد الجلسات',
-     //   );
-        //show rollback button for 5 seconds
-        showRollbackButton = true;
-        //5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          showRollbackButton = false;
-          emit(AddSessionsSuccessState());
-        });
-
-      }).catchError((error) {
-        print('Failed to add sessions: $error');
-        showToast(msg: 'فشل زيادة عدد الجلسات', state: ToastStates.ERROR);
-        emit(AddSessionsErrorState(error.toString()));
-      });
-    } else {
-
-
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get(GetOptions(source: Source.serverAndCache));
-      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
-      UserModel user = UserModel.fromJson(userData!);
-      user.numberOfSessions = user.numberOfSessions! + int.parse(sessions);
-       FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({'numberOfSessions': FieldValue.increment(int.parse(sessions))});
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc( FirebaseAuth.instance.currentUser?.uid)
-          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-        if (value.exists) {
-//add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .update({
-            'numberOfSessions': FieldValue.increment(int.parse(sessions))
-          });
-        } else {
-          //create new document and add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .set({
-            'numberOfSessions':int.parse(sessions)
-          });
-        }
-      });
-       //add users to user collection wih random
-      //    required String lName,
-      //     required String fName,
-      //     required String phone,
-      //     required String password,
-      //     required String role,  String? hourlyRate,
-   //todo :5od dh w kleh offline f sign up
-      // print('a7aaaaaaaaaaaaaaaaaaaaaaa;\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
-      // FirebaseFirestore.instance
-      //     .collection('users')
-      //     .doc('a7ajhbjh')
-      //     .set({'numberOfSessions': FieldValue.increment(int.parse(sessions))
-      //     ,'fname':'no wifi','lname':'no wifi','phone':'ko','password':'123456','role':'user'
-      //   ,'hourlyRate':0
-      //     });
-     // showToast(
-     //   state: ToastStates.SUCCESS,
-      //  msg: 'تم زيادة عدد الجلسات '
-     //       'سيتم تحديث البيانات عند توفر الإنترنت',
-     // );
-        print('Sessions added');
-      showRollbackButton = true;
-      //5 seconds
-      Future.delayed(Duration(seconds: 5), () {
-        showRollbackButton = false;
-      //  emit(AddSessionsSuccessState());
-      });
-      //debug showRollbackButton
-      print('\n\n\n\nshowRollbackButton: $showRollbackButton');
-
-      //show toast message
-      NotificationModel notification = NotificationModel(
-        //message indicate that admin add sessions to user name  with number of sessions
-        message: 'تم زيادة عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
-        timestamp: DateTime.now(),
-      );
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('notifications')
-          .add(notification.toMap());
-        salaryController.clear();
-        emit(AddSessionsSuccessState());
-      //  Navigator.pop(context);
-
-    }
-  }
-
-  reduceSessions(   context,{String? userId,
-    String? userName,
-    required String sessions,
-    required int NumberOfSessions
-  }
-
-      ) async {
+  reduceSessions(context, {String? userId, String? userName, required String sessions, required int NumberOfSessions})
+  async {
     emit(ReduceSessionsLoadingState());
-      currentNumberOfSessions = NumberOfSessions;
-      latestUserId = userId;
+    currentNumberOfSessions = NumberOfSessions;
+    latestUserId = userId;
 
-    bool isConnected = await checkInternetConnectivity();
-    if (isConnected) {
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc( FirebaseAuth.instance.currentUser?.uid)
-          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-        if (value.exists) {
-//add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .update({
-            'numberOfAttendence': FieldValue.increment(int.parse(sessions))
-          });
-        } else {
-          //create new document and add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .set({
-            'numberOfAttendence':int.parse(sessions)
-          });
-        }
-      });
-       FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
-
-        print('Sessions reduced');
-        showRollbackButton = true;
-        //5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          showRollbackButton = false;
-           emit(ReduceSessionsSuccessState());
-        });
-        print('showRollbackButton: $showRollbackButton');
-        NotificationModel notification = NotificationModel(
-          message: 'تم تخفيض عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
-          timestamp: DateTime.now(),
-        );
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('notifications')
-            .add(notification.toMap());
-        salaryController.clear();
-        emit(ReduceSessionsSuccessState());
-        return;
-        //   Navigator.pop(context);
-
-    } else {
-
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get(GetOptions(source: Source.serverAndCache));
+    //bool isConnected = await checkInternetConnectivity();
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance.collection('users').doc(userId).get(const GetOptions(source: Source.serverAndCache));
       Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
       UserModel user = UserModel.fromJson(userData!);
       user.numberOfSessions = user.numberOfSessions! - int.parse(sessions);
-       FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc( FirebaseAuth.instance.currentUser?.uid)
-          .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-        if (value.exists) {
-//add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .update({
-            'numberOfAttendence': FieldValue.increment(int.parse(sessions))
-          });
-        } else {
-          //create new document and add number of sessions to it
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates')
-              .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-              .set({
-            'numberOfAttendence':int.parse(sessions)
-          });
-        }
+
+      WriteBatch batch = FirebaseFirestore.instance.batch();
+      DocumentReference adminRef = FirebaseFirestore.instance.collection('admins').doc(FirebaseAuth.instance.currentUser?.uid);
+      DocumentReference datesRef = adminRef.collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}');
+      DocumentReference usersRef = FirebaseFirestore.instance.collection('users').doc(userId);
+      CollectionReference notificationsRef = adminRef.collection('notifications');
+//if datesRef exists update it else create new document and add number of sessions to it
+//       datesRef.get().then((value) {
+//         if (value.exists) {
+//           batch.update(datesRef, {'numberOfSessions': FieldValue.increment(int.parse(sessions))});
+//         } else {
+//           batch.set(datesRef, {'numberOfSessions': int.parse(sessions)});
+//         }
+//       });
+               batch.set(datesRef, {'setFlag': true}, SetOptions(merge: true));
+          batch.update(datesRef, {'numberOfAttendence': FieldValue.increment(int.parse(sessions))});
+
+    batch.update(usersRef, {'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
+      batch.set(notificationsRef.doc(), {
+        'message': 'تم تخفيض عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+        'timestamp': DateTime.now(),
       });
 
-       //       FirebaseFirestore.instance
+       batch.commit();
+
+      showRollbackButton = true;
+      //5 seconds
+      Future.delayed(const Duration(seconds: 5), () {
+        showRollbackButton = false;
+        emit(ReduceSessionsSuccessState());
+      });
+      emit(ReduceSessionsSuccessState());
+      return;
+
+  }
+
+  addSessions(context, {String? userId, String? userName, required String sessions, required int NumberOfSessions}) async {
+    emit(AddSessionsLoadingState());
+    currentNumberOfSessions = NumberOfSessions;
+    latestUserId = userId;
+    //bool isConnected = await checkInternetConnectivity();
+
+    WriteBatch batch = FirebaseFirestore.instance.batch();
+    // Update or create document in admins collection
+    DocumentReference adminDocRef = FirebaseFirestore.instance.collection('admins').doc(FirebaseAuth.instance.currentUser?.uid);
+    DocumentReference adminDateDocRef = adminDocRef.collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}');
+
+    // Update or create document in users collection
+    DocumentReference userDocRef = FirebaseFirestore.instance.collection('users').doc(userId);
+
+
+      DocumentSnapshot userSnapshot = await userDocRef.get(const GetOptions(source: Source.serverAndCache));
+      Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+      UserModel user = UserModel.fromJson(userData!);
+      user.numberOfSessions = user.numberOfSessions! + int.parse(sessions);
+      batch.update(userDocRef, {'numberOfSessions': FieldValue.increment(int.parse(sessions))});
+//if datesRef exists update it else create new document and add number of sessions to it
+
+         batch.set(adminDateDocRef, {'setFlag': true}, SetOptions(merge: true));
+          batch.update(adminDateDocRef, {'numberOfSessions': FieldValue.increment(int.parse(sessions))});
+
+
+    // Add notification to admin
+    DocumentReference notificationDocRef = adminDocRef.collection('notifications').doc();
+    NotificationModel notification = NotificationModel(
+      message: 'تم زيادة عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+      timestamp: DateTime.now(),
+    );
+    batch.set(notificationDocRef, notification.toMap());
+       batch.commit();
+      salaryController.clear();
+      emit(AddSessionsSuccessState());
+
+      showRollbackButton = true;
+      Future.delayed(const Duration(seconds: 5), () {
+        showRollbackButton = false;
+        emit(AddSessionsSuccessState());
+      });
+
+  }
+//todo sha8allaaaa
+  //   addSessions(context, {String? userId,
+//     String? userName,
+//     required String sessions,
+//     required int NumberOfSessions
+//   }) async {
+//     emit(AddSessionsLoadingState());
+//     currentNumberOfSessions = NumberOfSessions;
+//     latestUserId = userId;
+//     bool isConnected = await checkInternetConnectivity();
+//     //get time stamp for the current month and year
+//     //String monthAndYear = DateTime.now().month.toString() +
+//     //    '-' +
+//     //    DateTime.now().year.toString();
+//     if (isConnected) {
+//       //go to branches collection and doc with branchId then collection date then doc with month and year then update field number of sessions
+//       //         FirebaseFirestore.instance
+//       //       .collection('branches')
+//       //       .doc(branchId)
+//       //       .collection('dates')
+//       //       .doc(monthAndYear)
+//       //       .update({'numberOfSessions':
+//       //       FieldValue.increment(int.parse(sessions))});
+//       FirebaseFirestore.instance
 //           .collection('admins')
 //           .doc( FirebaseAuth.instance.currentUser?.uid)
 //           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
@@ -1042,7 +843,7 @@ bool isConnected = await checkInternetConnection();
 //               .collection('dates')
 //               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
 //               .update({
-//             'numberOfSessions': FieldValue.increment(-int.parse(sessions))
+//             'numberOfSessions': FieldValue.increment(int.parse(sessions))
 //           });
 //         } else {
 //           //create new document and add number of sessions to it
@@ -1052,42 +853,300 @@ bool isConnected = await checkInternetConnection();
 //               .collection('dates')
 //               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
 //               .set({
-//             'numberOfSessions':-int.parse(sessions)
+//             'numberOfSessions':int.parse(sessions)
 //           });
 //         }
 //       });
-
-      print('Sessions reduced');
-        //show toast message
-      //  showToast(
-      //    state: ToastStates.SUCCESS,
-      //    msg: 'تم تخفيض عدد الجلسات '
-      //        'سيتم تحديث البيانات عند توفر الإنترنت',
-       // );
-      NotificationModel notification = NotificationModel(
-        message: 'تم تخفيض عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
-        timestamp: DateTime.now(),
-      );
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('notifications')
-          .add(notification.toMap());
-        salaryController.clear();
-        //
-        showRollbackButton = true;
-        //5 seconds
-        Future.delayed(Duration(seconds: 5), () {
-          showRollbackButton = false;
-          print('\n\n\nshowRollbackButton: $showRollbackButton');
-          emit(ReduceSessionsSuccessState());
-        });
-        emit(ReduceSessionsSuccessState());
-       // Navigator.pop(context);
-        return;
-    }
-
-  }
+//       FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .update({'numberOfSessions': FieldValue.increment(int.parse(sessions))})
+//           .then((value) {
+//         print('Sessions added');
+//         //show toast message
+//         //add notification to admin
+//         NotificationModel notification = NotificationModel(
+//           //message indicate that admin add sessions to user name  with number of sessions
+//           message: 'تم زيادة عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+//           timestamp: DateTime.now(),
+//         );
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc(FirebaseAuth.instance.currentUser!.uid)
+//             .collection('notifications')
+//             .add(notification.toMap());
+//
+//         salaryController.clear();
+//         emit(AddSessionsSuccessState());
+//         //     Navigator.pop(context);
+//         //   showToast(
+//         //     state: ToastStates.SUCCESS,
+//         //     msg: 'تم زيادة عدد الجلسات',
+//         //   );
+//         //show rollback button for 5 seconds
+//         showRollbackButton = true;
+//         //5 seconds
+//         Future.delayed(Duration(seconds: 5), () {
+//           showRollbackButton = false;
+//           emit(AddSessionsSuccessState());
+//         });
+//
+//       }).catchError((error) {
+//         print('Failed to add sessions: $error');
+//         showToast(msg: 'فشل زيادة عدد الجلسات', state: ToastStates.ERROR);
+//         emit(AddSessionsErrorState(error.toString()));
+//       });
+//     } else {
+//
+//
+//       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .get(GetOptions(source: Source.serverAndCache));
+//       Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+//       UserModel user = UserModel.fromJson(userData!);
+//       user.numberOfSessions = user.numberOfSessions! + int.parse(sessions);
+//       FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .update({'numberOfSessions': FieldValue.increment(int.parse(sessions))});
+//       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc( FirebaseAuth.instance.currentUser?.uid)
+//           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//         if (value.exists) {
+// //add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .update({
+//             'numberOfSessions': FieldValue.increment(int.parse(sessions))
+//           });
+//         } else {
+//           //create new document and add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .set({
+//             'numberOfSessions':int.parse(sessions)
+//           });
+//         }
+//       });
+//       //add users to user collection wih random
+//       //    required String lName,
+//       //     required String fName,
+//       //     required String phone,
+//       //     required String password,
+//       //     required String role,  String? hourlyRate,
+//       //todo :5od dh w kleh offline f sign up
+//       // print('a7aaaaaaaaaaaaaaaaaaaaaaa;\n\n\n\n\n\n\n\n\n\n\n\n\n\n');
+//       // FirebaseFirestore.instance
+//       //     .collection('users')
+//       //     .doc('a7ajhbjh')
+//       //     .set({'numberOfSessions': FieldValue.increment(int.parse(sessions))
+//       //     ,'fname':'no wifi','lname':'no wifi','phone':'ko','password':'123456','role':'user'
+//       //   ,'hourlyRate':0
+//       //     });
+//       // showToast(
+//       //   state: ToastStates.SUCCESS,
+//       //  msg: 'تم زيادة عدد الجلسات '
+//       //       'سيتم تحديث البيانات عند توفر الإنترنت',
+//       // );
+//       print('Sessions added');
+//       showRollbackButton = true;
+//       //5 seconds
+//       Future.delayed(Duration(seconds: 5), () {
+//         showRollbackButton = false;
+//         //  emit(AddSessionsSuccessState());
+//       });
+//       //debug showRollbackButton
+//       print('\n\n\n\nshowRollbackButton: $showRollbackButton');
+//
+//       //show toast message
+//       NotificationModel notification = NotificationModel(
+//         //message indicate that admin add sessions to user name  with number of sessions
+//         message: 'تم زيادة عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+//         timestamp: DateTime.now(),
+//       );
+//       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc(FirebaseAuth.instance.currentUser!.uid)
+//           .collection('notifications')
+//           .add(notification.toMap());
+//       salaryController.clear();
+//       emit(AddSessionsSuccessState());
+//       //  Navigator.pop(context);
+//
+//     }
+//   }
+//   reduceSessions(   context,{String? userId,
+//     String? userName,
+//     required String sessions,
+//     required int NumberOfSessions
+//   }
+//
+//       ) async {
+//     emit(ReduceSessionsLoadingState());
+//       currentNumberOfSessions = NumberOfSessions;
+//       latestUserId = userId;
+//
+//     bool isConnected = await checkInternetConnectivity();
+//     if (isConnected) {
+//       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc( FirebaseAuth.instance.currentUser?.uid)
+//           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//         if (value.exists) {
+// //add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .update({
+//             'numberOfAttendence': FieldValue.increment(int.parse(sessions))
+//           });
+//         } else {
+//           //create new document and add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .set({
+//             'numberOfAttendence':int.parse(sessions)
+//           });
+//         }
+//       });
+//        FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
+//
+//         print('Sessions reduced');
+//         showRollbackButton = true;
+//         //5 seconds
+//         Future.delayed(Duration(seconds: 5), () {
+//           showRollbackButton = false;
+//            emit(ReduceSessionsSuccessState());
+//         });
+//         print('showRollbackButton: $showRollbackButton');
+//         NotificationModel notification = NotificationModel(
+//           message: 'تم تخفيض عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+//           timestamp: DateTime.now(),
+//         );
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc(FirebaseAuth.instance.currentUser!.uid)
+//             .collection('notifications')
+//             .add(notification.toMap());
+//         salaryController.clear();
+//         emit(ReduceSessionsSuccessState());
+//         return;
+//         //   Navigator.pop(context);
+//
+//     } else {
+//
+//       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .get(GetOptions(source: Source.serverAndCache));
+//       Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+//       UserModel user = UserModel.fromJson(userData!);
+//       user.numberOfSessions = user.numberOfSessions! - int.parse(sessions);
+//        FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .update({'numberOfSessions': FieldValue.increment(-int.parse(sessions))});
+//       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc( FirebaseAuth.instance.currentUser?.uid)
+//           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//         if (value.exists) {
+// //add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .update({
+//             'numberOfAttendence': FieldValue.increment(int.parse(sessions))
+//           });
+//         } else {
+//           //create new document and add number of sessions to it
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates')
+//               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//               .set({
+//             'numberOfAttendence':int.parse(sessions)
+//           });
+//         }
+//       });
+//
+//        //       FirebaseFirestore.instance
+// //           .collection('admins')
+// //           .doc( FirebaseAuth.instance.currentUser?.uid)
+// //           .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+// //         if (value.exists) {
+// // //add number of sessions to it
+// //           FirebaseFirestore.instance
+// //               .collection('admins')
+// //               .doc( FirebaseAuth.instance.currentUser?.uid)
+// //               .collection('dates')
+// //               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+// //               .update({
+// //             'numberOfSessions': FieldValue.increment(-int.parse(sessions))
+// //           });
+// //         } else {
+// //           //create new document and add number of sessions to it
+// //           FirebaseFirestore.instance
+// //               .collection('admins')
+// //               .doc( FirebaseAuth.instance.currentUser?.uid)
+// //               .collection('dates')
+// //               .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+// //               .set({
+// //             'numberOfSessions':-int.parse(sessions)
+// //           });
+// //         }
+// //       });
+//
+//       print('Sessions reduced');
+//         //show toast message
+//       //  showToast(
+//       //    state: ToastStates.SUCCESS,
+//       //    msg: 'تم تخفيض عدد الجلسات '
+//       //        'سيتم تحديث البيانات عند توفر الإنترنت',
+//        // );
+//       NotificationModel notification = NotificationModel(
+//         message: 'تم تخفيض عدد الجلسات للمستخدم $userName بعدد $sessions جلسة',
+//         timestamp: DateTime.now(),
+//       );
+//       FirebaseFirestore.instance
+//           .collection('admins')
+//           .doc(FirebaseAuth.instance.currentUser!.uid)
+//           .collection('notifications')
+//           .add(notification.toMap());
+//         salaryController.clear();
+//         //
+//         showRollbackButton = true;
+//         //5 seconds
+//         Future.delayed(Duration(seconds: 5), () {
+//           showRollbackButton = false;
+//           print('\n\n\nshowRollbackButton: $showRollbackButton');
+//           emit(ReduceSessionsSuccessState());
+//         });
+//         emit(ReduceSessionsSuccessState());
+//        // Navigator.pop(context);
+//         return;
+//     }
+//
+//   }
 
   num globalTotalSalary = 0; // Declare globalTotalSalary variable as num
 // salary textEditingController
@@ -1098,186 +1157,242 @@ bool isConnected = await checkInternetConnection();
   //make total salary = 0
   //for user with this uid userId
   //use catch error
-
   Future<void> paySalary({
     String? userId,
     String? userName,
     int? userTotalSalary,
   }) async {
-    try {
-      //print total salary of all users
-      print('Total salary user: $userTotalSalary');
       latestUserId = userId;
-      print('userId: $userId');
       emit(PaySalaryLoadingState());
-      bool isConnected = await checkInternetConnectivity();
-
-      if (!isConnected) {
+//      bool isConnected = await checkInternetConnectivity();
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
-            .get(GetOptions(source: Source.serverAndCache));
-
-
+            .get(const GetOptions(source: Source.serverAndCache));
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
         UserModel user = UserModel.fromJson(userData!);
         user.totalSalary = 0;
-        FirebaseFirestore.instance
+
+        WriteBatch batch = FirebaseFirestore.instance.batch();
+
+        DocumentReference dateDocumentRef = FirebaseFirestore.instance
             .collection('admins')
-            .doc( FirebaseAuth.instance.currentUser?.uid)
-            .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-          if (value.exists) {
-//add number of sessions to it
-            FirebaseFirestore.instance
-                .collection('admins')
-                .doc( FirebaseAuth.instance.currentUser?.uid)
-                .collection('dates')
-                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                .update({
-              //totalSalary
-              'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
-              // 'totalHours': FieldValue.increment(-totalHours),
-            });
-          } else {
-            //create new document and add number of sessions to it
-            FirebaseFirestore.instance
-                .collection('admins')
-                .doc( FirebaseAuth.instance.currentUser?.uid)
-                .collection('dates')
-                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                .set({
-              //totalSalary
-              'totalSalary': int.parse(userTotalSalary.toString()),
-              //  'totalHours': 0,
-            });
-          }
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('dates')
+            .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}');
+
+     //   batch.set(dateDocumentRef, {
+     //     'totalSalary': int.parse(userTotalSalary.toString()),
+     //   }, SetOptions(merge: true));
+        batch.set(dateDocumentRef, {'setFlag': true}, SetOptions(merge: true));
+        batch.update(dateDocumentRef, {
+          'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
         });
-       FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'totalSalary': 0});
-       print('Total salary of all users: $globalTotalSalary');
-     //  showToast(
-      //      state: ToastStates.SUCCESS,
-     //       msg: //pay salary success
-     //       'تم صرف المرتب بنجاح',
-     //     );
+
+        DocumentReference userDocumentRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+        batch.update(userDocumentRef, {'totalSalary': 0});
+    batch.set(FirebaseFirestore.instance
+        .collection('admins')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .collection('notifications')
+        .doc(), {
+      'message': 'تم صرف المرتب كامل للمستخدم ${user.name} ',
+      'timestamp': DateTime.now(),
+    }, SetOptions(merge: true));
+
+        batch.commit();
+
         showRollbackButton = true;
-        //delay 5 seconds
-        Timer(Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 5), () {
           showRollbackButton = false;
           emit(ShowRollbackButtonState());
         });
-        NotificationModel notification = NotificationModel(
-          message: 'تم صرف المرتب كامل للمستخدم ${user.name} ',
-          timestamp: DateTime.now(),
-        );
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('notifications')
-            .add(notification.toMap());
         salaryController.clear();
-          emit(PaySalarySuccessStateWithoutInternet());
-          return;
-      }
-
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get(GetOptions(source: Source.server));
-
-      Map<String, dynamic>? userData =
-      userSnapshot.data() as Map<String, dynamic>?;
-
-      if (userData != null) {
-        currentTotalSalary = userData['totalSalary'] ?? 0;
-        int newTotalSalary = 0;
-
-        // Only update the user's total salary if it has changed
-        if (currentTotalSalary != newTotalSalary) {
-          // Save the current total salary locally before updating it
-          saveSalaryLocally(userId, currentTotalSalary!);
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-            if (value.exists) {
-//add number of sessions to it
-              FirebaseFirestore.instance
-                  .collection('admins')
-                  .doc( FirebaseAuth.instance.currentUser?.uid)
-                  .collection('dates')
-                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                  .update({
-                //totalSalary
-                'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
-                // 'totalHours': FieldValue.increment(-totalHours),
-              });
-            } else {
-              //create new document and add number of sessions to it
-              FirebaseFirestore.instance
-                  .collection('admins')
-                  .doc( FirebaseAuth.instance.currentUser?.uid)
-                  .collection('dates')
-                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                  .set({
-                //totalSalary
-                'totalSalary': int.parse(userTotalSalary.toString()),
-                //  'totalHours': 0,
-              });
-            }
-          });
-
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userId)
-              .update({'totalSalary': newTotalSalary});
-
-          // Update the user in the users list
-          UserModel updatedUser = UserModel.fromJson(userData);
-          updatedUser.totalSalary = newTotalSalary;
-        //  int userIndex = coaches.indexWhere((user) => user.uId == userId);
-       //   if (userIndex != -1) {
-       //     coaches[userIndex] = updatedUser;
-      //    }
-
-          // Show elevated button if user wants to rollback this action
-          showRollbackButton = true;
-          //delay 5 seconds
-          Timer(Duration(seconds: 5), () {
-            showRollbackButton = false;
-            emit(ShowRollbackButtonState());
-          });
-
-          // showToast(
-          //   state: ToastStates.SUCCESS,
-          //   msg: //pay salary success
-          //   'تم صرف المرتب بنجاح',
-          // );
-          NotificationModel notification = NotificationModel(
-            message: 'تم صرف كامل المرتب للمستخدم ${userName}',
-            timestamp: DateTime.now(),
-          );
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection('notifications')
-              .add(notification.toMap());
-          salaryController.clear();
-          emit(PaySalarySuccessState());
-        } else {
-          //emit(PaySalarySuccessStateWithoutUpdate());
-        }
-      } else {
-        throw 'User data not found';
-      }
-    } catch (error) {
-      print(error.toString());
-      emit(PaySalaryErrorState(error.toString()));
-    }
+        emit(PaySalarySuccessStateWithoutInternet());
+        return;
   }
+
+
+
+  //todo : pay salary
+//   Future<void> paySalary({
+//     String? userId,
+//     String? userName,
+//     int? userTotalSalary,
+//   }) async {
+//     try {
+//       //print total salary of all users
+//       latestUserId = userId;
+//       emit(PaySalaryLoadingState());
+//       bool isConnected = await checkInternetConnectivity();
+//
+//       if (!isConnected) {
+//         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//             .collection('users')
+//             .doc(userId)
+//             .get(const GetOptions(source: Source.serverAndCache));
+//
+//
+//         Map<String, dynamic>? userData =
+//         userSnapshot.data() as Map<String, dynamic>?;
+//         UserModel user = UserModel.fromJson(userData!);
+//         user.totalSalary = 0;
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc( FirebaseAuth.instance.currentUser?.uid)
+//             .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//           if (value.exists) {
+// //add number of sessions to it
+//             FirebaseFirestore.instance
+//                 .collection('admins')
+//                 .doc( FirebaseAuth.instance.currentUser?.uid)
+//                 .collection('dates')
+//                 .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                 .update({
+//               //totalSalary
+//               'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
+//               // 'totalHours': FieldValue.increment(-totalHours),
+//             });
+//           } else {
+//             //create new document and add number of sessions to it
+//             FirebaseFirestore.instance
+//                 .collection('admins')
+//                 .doc( FirebaseAuth.instance.currentUser?.uid)
+//                 .collection('dates')
+//                 .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                 .set({
+//               //totalSalary
+//               'totalSalary': int.parse(userTotalSalary.toString()),
+//               //  'totalHours': 0,
+//             });
+//           }
+//         });
+//        FirebaseFirestore.instance
+//             .collection('users')
+//             .doc(userId)
+//             .update({'totalSalary': 0});
+//      //  showToast(
+//       //      state: ToastStates.SUCCESS,
+//      //       msg: //pay salary success
+//      //       'تم صرف المرتب بنجاح',
+//      //     );
+//         showRollbackButton = true;
+//         //delay 5 seconds
+//         Timer(const Duration(seconds: 5), () {
+//           showRollbackButton = false;
+//           emit(ShowRollbackButtonState());
+//         });
+//         NotificationModel notification = NotificationModel(
+//           message: 'تم صرف المرتب كامل للمستخدم ${user.name} ',
+//           timestamp: DateTime.now(),
+//         );
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc(FirebaseAuth.instance.currentUser!.uid)
+//             .collection('notifications')
+//             .add(notification.toMap());
+//         salaryController.clear();
+//           emit(PaySalarySuccessStateWithoutInternet());
+//           return;
+//       }
+//
+//       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .get(const GetOptions(source: Source.server));
+//
+//       Map<String, dynamic>? userData =
+//       userSnapshot.data() as Map<String, dynamic>?;
+//
+//       if (userData != null) {
+//         currentTotalSalary = userData['totalSalary'] ?? 0;
+//         int newTotalSalary = 0;
+//
+//         // Only update the user's total salary if it has changed
+//         if (currentTotalSalary != newTotalSalary) {
+//           // Save the current total salary locally before updating it
+//           saveSalaryLocally(userId, currentTotalSalary!);
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//             if (value.exists) {
+// //add number of sessions to it
+//               FirebaseFirestore.instance
+//                   .collection('admins')
+//                   .doc( FirebaseAuth.instance.currentUser?.uid)
+//                   .collection('dates')
+//                   .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                   .update({
+//                 //totalSalary
+//                 'totalSalary': FieldValue.increment(int.parse(userTotalSalary.toString())),
+//                 // 'totalHours': FieldValue.increment(-totalHours),
+//               });
+//             } else {
+//               //create new document and add number of sessions to it
+//               FirebaseFirestore.instance
+//                   .collection('admins')
+//                   .doc( FirebaseAuth.instance.currentUser?.uid)
+//                   .collection('dates')
+//                   .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                   .set({
+//                 //totalSalary
+//                 'totalSalary': int.parse(userTotalSalary.toString()),
+//                 //  'totalHours': 0,
+//               });
+//             }
+//           });
+//
+//           await FirebaseFirestore.instance
+//               .collection('users')
+//               .doc(userId)
+//               .update({'totalSalary': newTotalSalary});
+//
+//           // Update the user in the users list
+//           UserModel updatedUser = UserModel.fromJson(userData);
+//           updatedUser.totalSalary = newTotalSalary;
+//         //  int userIndex = coaches.indexWhere((user) => user.uId == userId);
+//        //   if (userIndex != -1) {
+//        //     coaches[userIndex] = updatedUser;
+//       //    }
+//
+//           // Show elevated button if user wants to rollback this action
+//           showRollbackButton = true;
+//           //delay 5 seconds
+//           Timer(const Duration(seconds: 5), () {
+//             showRollbackButton = false;
+//             emit(ShowRollbackButtonState());
+//           });
+//
+//           // showToast(
+//           //   state: ToastStates.SUCCESS,
+//           //   msg: //pay salary success
+//           //   'تم صرف المرتب بنجاح',
+//           // );
+//           NotificationModel notification = NotificationModel(
+//             message: 'تم صرف كامل المرتب للمستخدم ${userName}',
+//             timestamp: DateTime.now(),
+//           );
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc(FirebaseAuth.instance.currentUser!.uid)
+//               .collection('notifications')
+//               .add(notification.toMap());
+//           salaryController.clear();
+//           emit(PaySalarySuccessState());
+//         } else {
+//           //emit(PaySalarySuccessStateWithoutUpdate());
+//         }
+//       } else {
+//         throw 'User data not found';
+//       }
+//     } catch (error) {
+//       emit(PaySalaryErrorState(error.toString()));
+//     }
+//   }
   Future<void> rollbackSalary(
       ) async {
     try {
@@ -1306,12 +1421,10 @@ bool isConnected = await checkInternetConnection();
         //         emit(ReduceSessionsSuccessState());
         //        // Navigator.pop(context);
         //show toast message
-        print('latestUserId: $latestUserId');
-        print('currentTotalSalary: $currentTotalSalary');
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
                   .collection('users')
                   .doc(latestUserId)
-                  .get(GetOptions(source: Source.serverAndCache));
+                  .get(const GetOptions(source: Source.serverAndCache));
               Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
               UserModel user = UserModel.fromJson(userData!);
               user.totalSalary = currentTotalSalary;
@@ -1320,7 +1433,6 @@ bool isConnected = await checkInternetConnection();
                   .doc(latestUserId)
                   .update({'totalSalary': currentTotalSalary});
 
-                print('Total salary of all users: $globalTotalSalary');
 
         showToast(
           state: ToastStates.SUCCESS,
@@ -1332,8 +1444,6 @@ bool isConnected = await checkInternetConnection();
       }
 
       // emit(RollbackSalaryLoadingState());
-      print('latestUserId: $latestUserId');
-      print('currentTotalSalary: $currentTotalSalary');
 
 
       await FirebaseFirestore.instance
@@ -1344,7 +1454,7 @@ bool isConnected = await checkInternetConnection();
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(latestUserId)
-          .get(GetOptions(source: Source.server));
+          .get(const GetOptions(source: Source.server));
 
       Map<String, dynamic>? userData =
       userSnapshot.data() as Map<String, dynamic>?;
@@ -1391,7 +1501,6 @@ bool isConnected = await checkInternetConnection();
         msg: 'تم التراجع عن العملية',
       );
     } catch (error) {
-      print(error.toString());
       //  emit(RollbackSalaryErrorState(error.toString()));
     }
   }
@@ -1403,226 +1512,291 @@ bool isConnected = await checkInternetConnection();
     showRollbackButton = false;
     emit(UpdateShowRollbackButtonSuccessState());
   }
-
-  //
-  Future<void> payPartialSalary({String? userId, String? salaryPaid,
-     String? userName,
-  required int currentTotalSalary
+  Future<void> payPartialSalary({
+    String? userId,
+    String? salaryPaid,
+    String? userName,
+    required int currentTotalSalary,
   }) async {
-    try {
       latestUserId = userId;
-
-      print('userId: $userId');
       emit(PaySalaryLoadingState());
+    //  bool isConnected = await checkInternetConnectivity();
 
-      bool isConnected = await checkInternetConnectivity();
-
-      if (!isConnected) {
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
-            .get(GetOptions(source: Source.serverAndCache));
-
+            .get(const GetOptions(source: Source.serverAndCache));
 
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
         UserModel user = UserModel.fromJson(userData!);
         user.totalSalary = 0;
-        FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .update({'totalSalary': currentTotalSalary- int.parse(salaryPaid!)});
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc( FirebaseAuth.instance.currentUser?.uid)
-            .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-          if (value.exists) {
-//add number of sessions to it
-            FirebaseFirestore.instance
-                .collection('admins')
-                .doc( FirebaseAuth.instance.currentUser?.uid)
-                .collection('dates')
-                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                .update({
-              //totalSalary
-              'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
-             // 'totalHours': FieldValue.increment(-totalHours),
-            });
-          } else {
-            //create new document and add number of sessions to it
-            FirebaseFirestore.instance
-                .collection('admins')
-                .doc( FirebaseAuth.instance.currentUser?.uid)
-                .collection('dates')
-                .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                .set({
-              //totalSalary
-              'totalSalary': int.parse(salaryPaid!),
-            //  'totalHours': 0,
-            });
-          }
+
+        WriteBatch batch = FirebaseFirestore.instance.batch();
+
+        DocumentReference userDocumentRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+
+        batch.update(userDocumentRef, {
+          'totalSalary': FieldValue.increment(-int.parse(salaryPaid!)),
         });
-        print('Total salary of all users: $globalTotalSalary');
-        //  showToast(
-        //      state: ToastStates.SUCCESS,
-        //       msg: //pay salary success
-        //       'تم صرف المرتب بنجاح',
-        //     );
+
+        DocumentReference dateDocumentRef = FirebaseFirestore.instance
+            .collection('admins')
+            .doc(FirebaseAuth.instance.currentUser?.uid)
+            .collection('dates')
+            .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}');
+         batch.set(dateDocumentRef, {'setFlag': true}, SetOptions(merge: true));
+        batch.update(dateDocumentRef, {
+          'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
+        }, );
+           //       NotificationModel notification = NotificationModel(
+      //           message:
+      //           'تم صرف المرتب للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
+      //           timestamp: DateTime.now(),
+      //         );
+      //         FirebaseFirestore.instance
+      //             .collection('admins')
+      //             .doc(FirebaseAuth.instance.currentUser!.uid)
+      //             .collection('notifications')
+      //             .add(notification.toMap());
+      batch.set(FirebaseFirestore.instance
+          .collection('admins')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('notifications')
+          .doc(), {
+        'message': 'تم صرف المرتب للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
+        'timestamp': DateTime.now(),
+      }, SetOptions(merge: true));
+         batch.commit();
         showRollbackButton = true;
-        //delay 5 seconds
-        Timer(Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 5), () {
           showRollbackButton = false;
           emit(ShowRollbackButtonState());
         });
-        NotificationModel notification = NotificationModel(
-          message: 'تم صرف المرتب للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
-          timestamp: DateTime.now(),
-        );
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('notifications')
-            .add(notification.toMap());
         salaryController.clear();
         emit(PaySalarySuccessStateWithoutInternet());
         return;
       }
 
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get(GetOptions(source: Source.server));
-
-      Map<String, dynamic>? userData =
-      userSnapshot.data() as Map<String, dynamic>?;
-
-      if (userData != null) {
-        this.currentTotalSalary = userData['totalSalary'] ?? 0;
-        int newTotalSalary = 0;
-
-        // Only update the user's total salary if it has changed
-        if (currentTotalSalary != newTotalSalary) {
-          // Save the current total salary locally before updating it
-          saveSalaryLocally(userId, currentTotalSalary!);
-
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(userId)
-              .update({'totalSalary': currentTotalSalary- int.parse(salaryPaid!)});
-
-          // Update the user in the users list
-          UserModel updatedUser = UserModel.fromJson(userData);
-          updatedUser.totalSalary = newTotalSalary;
-          //  int userIndex = coaches.indexWhere((user) => user.uId == userId);
-          //   if (userIndex != -1) {
-          //     coaches[userIndex] = updatedUser;
-          //    }
-
-          // Show elevated button if user wants to rollback this action
-          showRollbackButton = true;
-          //delay 5 seconds
-          Timer(Duration(seconds: 5), () {
-            showRollbackButton = false;
-            emit(ShowRollbackButtonState());
-          });
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc( FirebaseAuth.instance.currentUser?.uid)
-              .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
-            if (value.exists) {
-//add number of sessions to it
-              FirebaseFirestore.instance
-                  .collection('admins')
-                  .doc( FirebaseAuth.instance.currentUser?.uid)
-                  .collection('dates')
-                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                  .update({
-                //totalSalary
-                'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
-                // 'totalHours': FieldValue.increment(-totalHours),
-              });
-            } else {
-              //create new document and add number of sessions to it
-              FirebaseFirestore.instance
-                  .collection('admins')
-                  .doc( FirebaseAuth.instance.currentUser?.uid)
-                  .collection('dates')
-                  .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
-                  .set({
-                //totalSalary
-                'totalSalary': int.parse(salaryPaid!),
-                //  'totalHours': 0,
-              });
-            }
-          });
-          NotificationModel notification = NotificationModel(
-            message: 'تم صرف المرتب للمستخدم $userName بمبلغ $salaryPaid جنيه',
-            timestamp: DateTime.now(),
-          );
-          FirebaseFirestore.instance
-              .collection('admins')
-              .doc(FirebaseAuth.instance.currentUser!.uid)
-              .collection('notifications')
-              .add(notification.toMap());
-          salaryController.clear();
-
-          // showToast(
-          //   state: ToastStates.SUCCESS,
-          //   msg: //pay salary success
-          //   'تم صرف المرتب بنجاح',
-          // );
-          emit(PaySalarySuccessState());
-        } else {
-          //emit(PaySalarySuccessStateWithoutUpdate());
-        }
-      } else {
-        throw 'User data not found';
-      }
-    } catch (error) {
-      print(error.toString());
-      emit(PaySalaryErrorState(error.toString()));
-    }
-  }
+  //todo : pay partial salary sha8al
+//   Future<void> payPartialSalary({String? userId, String? salaryPaid,
+//      String? userName,
+//   required int currentTotalSalary
+//   }) async {
+//     try {
+//       latestUserId = userId;
+//
+//       emit(PaySalaryLoadingState());
+//
+//       bool isConnected = await checkInternetConnectivity();
+//
+//       if (!isConnected) {
+//         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//             .collection('users')
+//             .doc(userId)
+//             .get(const GetOptions(source: Source.serverAndCache));
+//
+//
+//         Map<String, dynamic>? userData =
+//         userSnapshot.data() as Map<String, dynamic>?;
+//         UserModel user = UserModel.fromJson(userData!);
+//         user.totalSalary = 0;
+//         FirebaseFirestore.instance
+//             .collection('users')
+//             .doc(userId)
+//             .update({'totalSalary': currentTotalSalary- int.parse(salaryPaid!)});
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc( FirebaseAuth.instance.currentUser?.uid)
+//             .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//           if (value.exists) {
+// //add number of sessions to it
+//             FirebaseFirestore.instance
+//                 .collection('admins')
+//                 .doc( FirebaseAuth.instance.currentUser?.uid)
+//                 .collection('dates')
+//                 .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                 .update({
+//               //totalSalary
+//               'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
+//              // 'totalHours': FieldValue.increment(-totalHours),
+//             });
+//           } else {
+//             //create new document and add number of sessions to it
+//             FirebaseFirestore.instance
+//                 .collection('admins')
+//                 .doc( FirebaseAuth.instance.currentUser?.uid)
+//                 .collection('dates')
+//                 .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                 .set({
+//               //totalSalary
+//               'totalSalary': int.parse(salaryPaid!),
+//             //  'totalHours': 0,
+//             });
+//           }
+//         });
+//         //  showToast(
+//         //      state: ToastStates.SUCCESS,
+//         //       msg: //pay salary success
+//         //       'تم صرف المرتب بنجاح',
+//         //     );
+//         showRollbackButton = true;
+//         //delay 5 seconds
+//         Timer(const Duration(seconds: 5), () {
+//           showRollbackButton = false;
+//           emit(ShowRollbackButtonState());
+//         });
+//         NotificationModel notification = NotificationModel(
+//           message: 'تم صرف المرتب للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
+//           timestamp: DateTime.now(),
+//         );
+//         FirebaseFirestore.instance
+//             .collection('admins')
+//             .doc(FirebaseAuth.instance.currentUser!.uid)
+//             .collection('notifications')
+//             .add(notification.toMap());
+//         salaryController.clear();
+//         emit(PaySalarySuccessStateWithoutInternet());
+//         return;
+//       }
+//
+//       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+//           .collection('users')
+//           .doc(userId)
+//           .get(const GetOptions(source: Source.server));
+//
+//       Map<String, dynamic>? userData =
+//       userSnapshot.data() as Map<String, dynamic>?;
+//
+//       if (userData != null) {
+//         this.currentTotalSalary = userData['totalSalary'] ?? 0;
+//         int newTotalSalary = 0;
+//
+//         // Only update the user's total salary if it has changed
+//         if (currentTotalSalary != newTotalSalary) {
+//           // Save the current total salary locally before updating it
+//           saveSalaryLocally(userId, currentTotalSalary!);
+//
+//           await FirebaseFirestore.instance
+//               .collection('users')
+//               .doc(userId)
+//               .update({'totalSalary': currentTotalSalary- int.parse(salaryPaid!)});
+//
+//           // Update the user in the users list
+//           UserModel updatedUser = UserModel.fromJson(userData);
+//           updatedUser.totalSalary = newTotalSalary;
+//           //  int userIndex = coaches.indexWhere((user) => user.uId == userId);
+//           //   if (userIndex != -1) {
+//           //     coaches[userIndex] = updatedUser;
+//           //    }
+//
+//           // Show elevated button if user wants to rollback this action
+//           showRollbackButton = true;
+//           //delay 5 seconds
+//           Timer(const Duration(seconds: 5), () {
+//             showRollbackButton = false;
+//             emit(ShowRollbackButtonState());
+//           });
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc( FirebaseAuth.instance.currentUser?.uid)
+//               .collection('dates').doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}').get().then((value) {
+//             if (value.exists) {
+// //add number of sessions to it
+//               FirebaseFirestore.instance
+//                   .collection('admins')
+//                   .doc( FirebaseAuth.instance.currentUser?.uid)
+//                   .collection('dates')
+//                   .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                   .update({
+//                 //totalSalary
+//                 'totalSalary': FieldValue.increment(int.parse(salaryPaid!)),
+//                 // 'totalHours': FieldValue.increment(-totalHours),
+//               });
+//             } else {
+//               //create new document and add number of sessions to it
+//               FirebaseFirestore.instance
+//                   .collection('admins')
+//                   .doc( FirebaseAuth.instance.currentUser?.uid)
+//                   .collection('dates')
+//                   .doc('${DateTime.now().month.toString()}-${DateTime.now().year.toString()}')
+//                   .set({
+//                 //totalSalary
+//                 'totalSalary': int.parse(salaryPaid!),
+//                 //  'totalHours': 0,
+//               });
+//             }
+//           });
+//           NotificationModel notification = NotificationModel(
+//             message: 'تم صرف المرتب للمستخدم $userName بمبلغ $salaryPaid جنيه',
+//             timestamp: DateTime.now(),
+//           );
+//           FirebaseFirestore.instance
+//               .collection('admins')
+//               .doc(FirebaseAuth.instance.currentUser!.uid)
+//               .collection('notifications')
+//               .add(notification.toMap());
+//           salaryController.clear();
+//
+//           // showToast(
+//           //   state: ToastStates.SUCCESS,
+//           //   msg: //pay salary success
+//           //   'تم صرف المرتب بنجاح',
+//           // );
+//           emit(PaySalarySuccessState());
+//         } else {
+//           //emit(PaySalarySuccessStateWithoutUpdate());
+//         }
+//       } else {
+//         throw 'User data not found';
+//       }
+//     } catch (error) {
+//       emit(PaySalaryErrorState(error.toString()));
+//     }
+//   }
   Future<void> payBonus({String? userId, String? salaryPaid,
   required int TotalSalary
   }) async {
-    try {
       latestUserId = userId;
-      print('userId: $userId');
-
       currentTotalSalary = TotalSalary;
-      print('currentTotalSalary: $currentTotalSalary');
-
-      print('userId: $userId');
       emit(PaySalaryLoadingState());
-      bool isConnected = await checkInternetConnectivity();
-      if (!isConnected) {
-        print('latestUserId: $latestUserId');
-        print('currentTotalSalary: $currentTotalSalary');
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
-            .get(GetOptions(source: Source.serverAndCache));
+            .get(const GetOptions(source: Source.serverAndCache));
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
-
+      WriteBatch batch = FirebaseFirestore.instance.batch();
         UserModel user = UserModel.fromJson(userData!);
         user.totalSalary = user.totalSalary! + int.parse(salaryPaid!);
-        FirebaseFirestore.instance
+        // FirebaseFirestore.instance
+        //     .collection('users')
+        //     .doc(userId)
+        //     .update({'totalSalary': FieldValue.increment(int.parse(salaryPaid))});
+        //
+        // NotificationModel notification = NotificationModel(
+        //   message: 'تم صرف المكافأة للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
+        //   timestamp: DateTime.now(),
+        // );
+        // FirebaseFirestore.instance
+        //     .collection('admins')
+        //     .doc(FirebaseAuth.instance.currentUser!.uid)
+        //     .collection('notifications')
+        //     .add(notification.toMap());
+      batch.set(FirebaseFirestore.instance
+          .collection('admins')
+          .doc(FirebaseAuth.instance.currentUser!.uid)
+          .collection('notifications')
+          .doc(), {
+        'message': 'تم صرف المكافأة للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
+        'timestamp': DateTime.now(),
+      }, SetOptions(merge: true));
+        batch.update(FirebaseFirestore.instance
             .collection('users')
-            .doc(userId)
-            .update({'totalSalary': user.totalSalary});
+            .doc(userId), {'totalSalary': FieldValue.increment(int.parse(salaryPaid))});
+        batch.commit();
 
-        print('Total salary of all users: $globalTotalSalary');
-        NotificationModel notification = NotificationModel(
-          message: 'تم صرف المكافأة للمستخدم ${user.name} بمبلغ ${salaryPaid} جنيه',
-          timestamp: DateTime.now(),
-        );
-        FirebaseFirestore.instance
-            .collection('admins')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('notifications')
-            .add(notification.toMap());
         salaryController.clear();
       //  showToast(
       //    state: ToastStates.SUCCESS,
@@ -1631,69 +1805,16 @@ bool isConnected = await checkInternetConnection();
       //  );
         // Enable rollback button
         showRollbackButton = true;
-        Timer(Duration(seconds: 5), () {
+        Timer(const Duration(seconds: 5), () {
           showRollbackButton = false;
           emit(ShowRollbackButtonState());
         });
 
         emit(PaySalarySuccessStateWithoutInternet());
         return;
-      }
 
-      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .get(GetOptions(source: Source.serverAndCache));
-
-      Map<String, dynamic>? userData =
-      userSnapshot.data() as Map<String, dynamic>?;
-
-      int? totalSalary = userData?['totalSalary'];
-      int? salary14 = int.parse(salaryPaid!);
-      int? newTotalSalary = totalSalary! + salary14!;
-      print('newTotalSalary: $newTotalSalary');
-
-      // Store the current total salary for rollback
-      currentTotalSalary = totalSalary;
-
-      await FirebaseFirestore.instance
-          .collection('users')
-          .doc(userId)
-          .update({'totalSalary': newTotalSalary});
-      // Update the user in the users list
-     // int userIndex = coaches.indexWhere((user) => user.uId == userId);
-    //  if (userIndex != -1) {
-    //    coaches[userIndex].totalSalary = newTotalSalary;
-    //  }
-      NotificationModel notification = NotificationModel(
-        message: 'تم صرف المكافأة للمستخدم ${userData!['name']} بمبلغ $salaryPaid جنيه',
-        timestamp: DateTime.now(),
-      );
-      FirebaseFirestore.instance
-          .collection('admins')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('notifications')
-          .add(notification.toMap());
-      salaryController.clear();
-      //show toast message
-     // showToast(
-    //    state: ToastStates.SUCCESS,
-   //     msg: 'تم صرف المرتب بنجاح',
-  //    );
-
-      // Enable rollback button
-      showRollbackButton = true;
-      Timer(Duration(seconds: 5), () {
-        showRollbackButton = false;
-        emit(ShowRollbackButtonState());
-      });
-
-      emit(PaySalarySuccessState());
-    } catch (error) {
-      print(error.toString());
-      emit(PaySalaryErrorState(error.toString()));
     }
-  }
+
 
   Future<void> rollbackPartialSalary() async {
     try {
@@ -1702,7 +1823,7 @@ bool isConnected = await checkInternetConnection();
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(latestUserId)
-            .get(GetOptions(source: Source.serverAndCache));
+            .get(const GetOptions(source: Source.serverAndCache));
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
 
@@ -1722,8 +1843,6 @@ bool isConnected = await checkInternetConnection();
         return;
       }
 
-      print('latestUserId: $latestUserId');
-      print('currentTotalSalary: $currentTotalSalary');
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -1733,7 +1852,7 @@ bool isConnected = await checkInternetConnection();
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(latestUserId)
-          .get(GetOptions(source: Source.server));
+          .get(const GetOptions(source: Source.server));
 
       Map<String, dynamic>? userData =
       userSnapshot.data() as Map<String, dynamic>?;
@@ -1750,7 +1869,7 @@ bool isConnected = await checkInternetConnection();
         msg: 'تم التراجع عن العملية',
       );
     } catch (error) {
-      print(error.toString());
+      print('Failed to rollback partial salary: $error');
     }
   }
 
@@ -1761,7 +1880,7 @@ bool isConnected = await checkInternetConnection();
         DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
             .collection('users')
             .doc(latestUserId)
-            .get(GetOptions(source: Source.serverAndCache));
+            .get(const GetOptions(source: Source.serverAndCache));
         Map<String, dynamic>? userData =
         userSnapshot.data() as Map<String, dynamic>?;
 
@@ -1780,8 +1899,6 @@ bool isConnected = await checkInternetConnection();
         emit(RollbackSalarySuccessStateWithoutInternet());
         return;
       }
-      print('latestUserId: $latestUserId');
-      print('currentTotalSalary: $currentTotalSalary');
 
       await FirebaseFirestore.instance
           .collection('users')
@@ -1790,7 +1907,7 @@ bool isConnected = await checkInternetConnection();
       DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
           .collection('users')
           .doc(latestUserId)
-          .get(GetOptions(source: Source.server));
+          .get(const GetOptions(source: Source.server));
 
       Map<String, dynamic>? userData =
       userSnapshot.data() as Map<String, dynamic>?;
@@ -1807,7 +1924,6 @@ bool isConnected = await checkInternetConnection();
         msg: 'تم التراجع عن العملية',
       );
     } catch (error) {
-      print(error.toString());
     }
   }
   Future<void> updateShowRollbackButtonSession(
@@ -1829,8 +1945,6 @@ bool isConnected = await checkInternetConnection();
   List<BranchModel> branches = [];
   Future<void> getBranches() async {
     //print all branches now in loop
-    print('branches.length\n\n\n\n\n\n');
-    print(branches.length);
     emit(GetBranchesLoadingState());
     FirebaseFirestore.instance
         .collection('branches')
@@ -1839,13 +1953,10 @@ bool isConnected = await checkInternetConnection();
       value.docs.forEach((element) {
         branches.add(BranchModel.fromJson(element.data()));
       });
-      print('after branches.length\n\n\n\n\n\n');
-      print(branches.length);
       emit(GetBranchesSuccessState(
         branches,
       ));
     }).catchError((error) {
-      print(error.toString());
       emit(GetBranchesErrorState(error.toString()));
     });
   }
@@ -1861,10 +1972,6 @@ bool isConnected = await checkInternetConnection();
    // bool isConnected = checkInternetConnectivity();
     emit(DeleteGroupLoadingState());
  //debug parameters
-    print('groupId: $groupId');
-    print('branchId: $branchId');
-    print('schedulesIds: $schedulesIds');
-    print('schedulesDays: $schedulesDays');
      //if (!isConnected) {
     //   FirebaseFirestore.instance
     //       .collection('branches')
@@ -1919,7 +2026,6 @@ bool isConnected = await checkInternetConnection();
       // Commit the batch operation
        batch.commit();
 
-      print('Group deleted');
 
       // Show toast message
      // showToast(

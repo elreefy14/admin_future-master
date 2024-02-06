@@ -9,23 +9,21 @@ import '../../core/constants/routes_manager.dart';
 import '../business_logic/auth_cubit/login_cubit.dart';
 
 class SignInScreen extends StatelessWidget {
-
-
-
+  const SignInScreen({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Directionality(
         textDirection: TextDirection.rtl,
         child: SingleChildScrollView(
-          physics: BouncingScrollPhysics(),
+          physics: const BouncingScrollPhysics(),
           reverse: true,
           child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
               SizedBox(height: 102.0.h),
           Padding(
-            padding: EdgeInsets.only(
+            padding: const EdgeInsets.only(
              // top: 82.0.h,
             ),
             child: Center(
@@ -39,7 +37,7 @@ class SignInScreen extends StatelessWidget {
                     fontWeight: FontWeight.w400,
                     fontSize: 32.sp,
                     height: 26.h / 32.h,
-                    color: Color(0xFF333333),
+                    color: const Color(0xFF333333),
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -53,7 +51,7 @@ class SignInScreen extends StatelessWidget {
               key: LoginCubit.get(context).formKey,
               child: ListView(
                 shrinkWrap: true,
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 children: [
                   BuildTextFormField(
                       'رقم الهاتف',
@@ -119,25 +117,16 @@ class SignInScreen extends StatelessWidget {
                               onPressed: () {
                                 if (LoginCubit.get(context).formKey.currentState!.validate()) {
                                   LoginCubit.get(context).userLogin(
-                                    phone: LoginCubit.get(context).phoneController.text,
-                                    password: LoginCubit.get(context).passwordController.text,
+                                  //  phone: LoginCubit.get(context).phoneController.text,
+                                  //  password: LoginCubit.get(context).passwordController.text,
+                                    //trim phone number and password
+                                    phone: LoginCubit.get(context).phoneController.text.trim(),
+                                    password: LoginCubit.get(context).passwordController.text.trim(),
                                   );
                                 }
                               },
-                              child: Text(
-                                'تسجيل دخول',
-                                style: TextStyle(
-                                  fontFamily: 'Montserrat-Arabic',
-                                  fontStyle: FontStyle.normal,
-                                  fontWeight: FontWeight.w400,
-                                  fontSize: 18.sp,
-                                  height: 26.h / 18.h,
-                                  color: Color(0xFFFFFFFF),
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
                               style: ElevatedButton.styleFrom(
-                                primary: Color(0xFF2196F3), // Background color
+                                backgroundColor: const Color(0xFF2196F3), // Background color
                                 padding: EdgeInsets.symmetric
                                   (horizontal: 16.w, vertical: 9.h),
                                 shape: RoundedRectangleBorder(
@@ -147,11 +136,23 @@ class SignInScreen extends StatelessWidget {
                                   fontSize: 18.sp, // Adjust the font size if needed
                                 ),
                               ),
+                              child: Text(
+                                'تسجيل دخول',
+                                style: TextStyle(
+                                  fontFamily: 'Montserrat-Arabic',
+                                  fontStyle: FontStyle.normal,
+                                  fontWeight: FontWeight.w400,
+                                  fontSize: 18.sp,
+                                  height: 26.h / 18.h,
+                                  color: const Color(0xFFFFFFFF),
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
                             ),
                           );
                         },
                         fallback: (context) {
-                          return Center(
+                          return const Center(
                               child: CircularProgressIndicator(),
                             );
                           },

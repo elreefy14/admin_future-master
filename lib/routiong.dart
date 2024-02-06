@@ -1,3 +1,4 @@
+import 'package:admin_future/registeration/business_logic/auth_cubit/sign_up_cubit.dart';
 import 'package:admin_future/registeration/data/userModel.dart';
 import 'package:admin_future/registeration/business_logic/auth_cubit/login_cubit.dart';
 import 'package:admin_future/registeration/presenation/SignUpScreen.dart';
@@ -118,9 +119,12 @@ class RouteGenerator {
       case AppRoutes.addCoach:
         args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-            builder: (_) => AddCoachScreen(
+            builder: (_) => BlocProvider(
+  create: (context) => SignUpCubit(),
+  child: AddCoachScreen(
                   isCoach: (args as Map<String, dynamic>)?['isCoach'],
-                ));
+                ),
+));
 
       case AppRoutes.addSchedule:
         args = settings.arguments as Map<String, dynamic>;
@@ -155,8 +159,8 @@ class RouteGenerator {
       case AppRoutes.home:
         return MaterialPageRoute(builder: (_) => const HomeLayout());
       // manage attendence
-      case AppRoutes.manageAttendence:
-        return MaterialPageRoute(builder: (_) => const ManageAttendence());
+      //case AppRoutes.manageAttendence:
+      //  return MaterialPageRoute(builder: (_) => const ManageAttendence());
       //ManageCoaches
       case AppRoutes.manageUseers:
         return MaterialPageRoute(builder: (_) => const ManageUsersScreen());

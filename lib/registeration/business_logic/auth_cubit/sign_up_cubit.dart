@@ -11,7 +11,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/flutter_flow/form_field_controller.dart';
 import '../../data/userModel.dart';
-import '../../data/user_cache_model.dart';
+import '../../data/adminModel.dart';
 import '../../presenation/widget/widget.dart';
 import 'sign_up_state.dart';
 //**Collections and Documents:**
